@@ -117,3 +117,20 @@ def evaluate(model, test_loader, loss_function):
     f1 = f1_score(y_true, y_pred, average='macro')
 
     return accuracy, precision, recall, f1
+
+
+class LinearModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc1 = nn.Linear(28 * 28, 256)
+        self.fc2 = nn.Linear(256, 64)
+        self.drop_out = nn.Dropout(0.5)
+        self.fc3 = nn.Linear(64, 1)
+
+    def forward(self, x):
+        out = x.reshape(x.size(0), -1)
+        out = nn.functional.relu(self.fc1(out))
+        out = nn.functional.relu(self.fc2(out))
+        out = self.drop_out(out)
+        out = nn.functional.relu(self.fc3(out))
+        return out
