@@ -1,6 +1,6 @@
 access_name = None
-s = None
-s2 = None
+s = [None]
+s2 = [None]
 
 
 def access(name):
@@ -9,7 +9,7 @@ def access(name):
     global access_name
     access_name = name
     with open(name) as file:
-        s0 = file.readlines()[1:-1]
+        s0 = file.readlines()[1:-2]
         s = [i.strip().split('//')[-1][1:] for i in s0]
         s2 = [i.split()[0:4] for i in s0]
 
