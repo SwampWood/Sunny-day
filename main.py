@@ -2,9 +2,10 @@ import csv
 import xlsxwriter
 import json
 import sqlite3
-from process import *
+from process.process import *
+import time
 
-with open('headers.json', encoding='UTF-8') as file:
+with open('process/headers.json', encoding='UTF-8') as file:
     headers = json.load(file)
 
 
@@ -14,10 +15,12 @@ def from_dat(file_dir, decode='Srok8c.ddl'):
         data = []
         data_type = [None] * len(all_)
         for i in f.readlines():
+            i = i.strip()
             row = []
             cur = 0
             for j in range(len(all_)):
-                idx = i[cur:cur + all_[j]][-use_[j]:]
+                cur += all_[j]
+                idx = i[cur - all_[j]:cur]
                 idx = idx.replace(' ', '')
                 if data_type[j] is None and idx and '.' in idx:
                     data_type[j] = 'REAL'
@@ -27,9 +30,7 @@ def from_dat(file_dir, decode='Srok8c.ddl'):
                     row.append(int(idx))
                 else:
                     row.append('NaN')
-                cur += all_[j]
             data.append(row)
-            break
     return data
 
 
