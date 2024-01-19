@@ -43,14 +43,15 @@ def from_dat(file_dir, decode='process/Srok8c.ddl'):
     return data, data_type
 
 
-def column_sql(db_name, target):
+def column_sql(db_name, target=None):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
-    result = c.execute(f'''SELECT ? FROM meteorological_data
-    ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, СРОКГР''', target)
-
-    # Сохраняем изменения
-    conn.commit()
+    if target is None:
+        result = c.execute(f'''SELECT * FROM meteorological_data
+        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, СРОКГР''').fetchall()
+    else:
+        result = c.execute(f'''SELECT ? FROM meteorological_data
+        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, СРОКГР''', target).fetchall()
 
     # Закрываем соединение
     conn.close()
