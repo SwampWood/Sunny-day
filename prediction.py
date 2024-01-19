@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, Dataset, ConcatDataset, random_split
 from torchsummary import summary
 from tqdm import tqdm
 from IPython.display import clear_output
-from format import column_sql
+from format import column_sql, headers
 
 
 class LRScheduler:
@@ -73,7 +73,7 @@ def train(model, dataloader, loss_function, optimizer=None):
     return total_loss / len(dataloader)
 
 
-def test(model, dataloader, loss_function):
+def test_(model, dataloader, loss_function):
     model.eval()
     total_loss = 0
     y_true = []
@@ -109,7 +109,7 @@ def show_losses(train_loss_hist, test_loss_hist):
 
 
 def evaluate(model, test_loader, loss_function):
-    y_true, y_pred, _ = test(model, test_loader, loss_function)
+    y_true, y_pred, _ = test_(model, test_loader, loss_function)
 
     # Вычисляем метрики
     accuracy = accuracy_score(y_true, y_pred)
@@ -122,25 +122,17 @@ def evaluate(model, test_loader, loss_function):
 
 def run_train_loop(model, optimiser, loss_func, train_loader, val_loader,
                    num_epochs, LRscheduler=None, early_stop=None,
-                   save_model=None, save_model_dir=None, metrics=False):
+                   save_model=None):
     train_hist = np.array([])
     val_hist = np.array([])
     for e in range(num_epochs):
         print("Training...")
-        if metrics:
-            train_loss, *metr_train = train(model, train_loader, loss_func, optimiser)
-        else:
-            train_loss = train(model, train_loader, loss_func, optimiser)
+        train_loss = train(model, train_loader, loss_func, optimiser)
         if save_model:
             torch.save(model.state_dict(), save_model)
-        if save_model_dir:
-            torch.save(model.state_dict(), save_model_dir + '/weights')
         train_hist = np.append(train_hist, np.array([train_loss]))
         print("Validating...")
-        if metrics:
-            val_loss, *metr_val = test(model, val_loader, loss_func)
-        else:
-            val_loss = test(model, val_loader, loss_func)
+        val_loss = test_(model, val_loader, loss_func)
         val_hist = np.append(val_hist, np.array([val_loss]))
         clear_output()
         show_losses(train_hist, val_hist)
@@ -171,4 +163,28 @@ class LinearModel(nn.Module):
 
 
 if __name__ == '__main__':
-    whole_data = LargeDataset(column_sql('database/temporary.db', '*'))
+    whole_data = LargeDataset(column_sql('database/temporary.db'), params=headers)
+    temp_data = whole_data['ТЕМВОЗДМ']
+    train_dataset, test_dataset = random_split(temp_data, [0.9, 0.1])
+    BATCH_SIZE = 64
+    NUM_EPOCHS = 200
+    model = LinearModel(120)
+
+    optim = torch.optim.Adam(model.parameters(), lr=1e-6)
+    loss = nn.MSELoss()
+
+    train_dl = DataLoader(train_dataset, BATCH_SIZE, True)
+    test_dl = DataLoader(test_dataset, BATCH_SIZE, False)
+
+    lr_scheduler = LRScheduler(optim, min_lr=1e-9)
+
+    run_train_loop(
+        model,
+        optim,
+        loss,
+        train_dl,
+        test_dl,
+        NUM_EPOCHS,
+        lr_scheduler,
+        save_model='/content/drive/MyDrive/lungs_model10',
+    )
