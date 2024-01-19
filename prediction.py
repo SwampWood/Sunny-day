@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader, Dataset, ConcatDataset, random_split
 from torchsummary import summary
 from tqdm import tqdm
 from IPython.display import clear_output
+from format import column_sql
 
 
 class LRScheduler:
@@ -46,7 +47,7 @@ class MiniDataset(Dataset):
 
 class LargeDataset(Dataset):
     def __init__(self, database, len_batches=120, params=tuple(range(20))):
-        inputs = np.array([database[i:i+len_batches] for i in range(len(database) - len_batches)])
+        inputs = np.array([database[i:i+len_batches] for i in range(len(database) - len_batches - 1)])
         self.targets = np.array([database[i] for i in range(len_batches, len(database))])
         self.data = {params[i]: (inputs[:, :, i], self.targets[:, i]) for i in range(len(params))}
 
@@ -119,10 +120,43 @@ def evaluate(model, test_loader, loss_function):
     return accuracy, precision, recall, f1
 
 
+def run_train_loop(model, optimiser, loss_func, train_loader, val_loader,
+                   num_epochs, LRscheduler=None, early_stop=None,
+                   save_model=None, save_model_dir=None, metrics=False):
+    train_hist = np.array([])
+    val_hist = np.array([])
+    for e in range(num_epochs):
+        print("Training...")
+        if metrics:
+            train_loss, *metr_train = train(model, train_loader, loss_func, optimiser)
+        else:
+            train_loss = train(model, train_loader, loss_func, optimiser)
+        if save_model:
+            torch.save(model.state_dict(), save_model)
+        if save_model_dir:
+            torch.save(model.state_dict(), save_model_dir + '/weights')
+        train_hist = np.append(train_hist, np.array([train_loss]))
+        print("Validating...")
+        if metrics:
+            val_loss, *metr_val = test(model, val_loader, loss_func)
+        else:
+            val_loss = test(model, val_loader, loss_func)
+        val_hist = np.append(val_hist, np.array([val_loss]))
+        clear_output()
+        show_losses(train_hist, val_hist)
+        if LRscheduler:
+            LRscheduler(train_loss)
+        if early_stop:
+            early_stop(train_loss)
+            if early_stop.early_stop:
+                print('INFO: Early stopping. Epoch:', e + 1)
+                break
+
+
 class LinearModel(nn.Module):
-    def __init__(self):
+    def __init__(self, len_batch):
         super().__init__()
-        self.fc1 = nn.Linear(28 * 28, 256)
+        self.fc1 = nn.Linear(len_batch, 256)
         self.fc2 = nn.Linear(256, 64)
         self.drop_out = nn.Dropout(0.5)
         self.fc3 = nn.Linear(64, 1)
@@ -134,3 +168,7 @@ class LinearModel(nn.Module):
         out = self.drop_out(out)
         out = nn.functional.relu(self.fc3(out))
         return out
+
+
+if __name__ == '__main__':
+    whole_data = LargeDataset(column_sql('database/temporary.db', '*'))

@@ -43,6 +43,21 @@ def from_dat(file_dir, decode='process/Srok8c.ddl'):
     return data, data_type
 
 
+def column_sql(db_name, target):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+    result = c.execute(f'''SELECT ? FROM meteorological_data
+    ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, СРОКГР''', target)
+
+    # Сохраняем изменения
+    conn.commit()
+
+    # Закрываем соединение
+    conn.close()
+
+    return result
+
+
 def to_sql(db, header=None, types=None):
     if header is None:
         header = list(headers.keys())
