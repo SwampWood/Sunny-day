@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="images">
+    <file>нужный лес.jpg</file>
+    <file>ktc2.jpg</file>
+    <file>лес.jpg</file>
+    <file>лес.jpg</file>
+    <file>облака2.jpg</file>
+    <file>небо3.jpg</file>
+    <file>лес.jpg</file>
+    <file>небо2.jpg</file>
+    <file>небо.jpg!d</file>
+    <file>облака.jpg</file>
+    <file>тучи.jpg</file>
+  </qresource>
+</RCC>
