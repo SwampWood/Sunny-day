@@ -48,10 +48,10 @@ def column_sql(db_name, target=None):
     c = conn.cursor()
     if target is None:
         result = c.execute(f'''SELECT * FROM meteorological_data
-        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, СРОКГР''').fetchall()
+        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, ВРЕМЯМЕ''').fetchall()
     else:
         result = c.execute(f'''SELECT ? FROM meteorological_data
-        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, СРОКГР''', target).fetchall()
+        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, ВРЕМЯМЕ''', target).fetchall()
 
     # Закрываем соединение
     conn.close()
