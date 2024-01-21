@@ -32,9 +32,10 @@ class LRScheduler:
 
 
 class MiniDataset(Dataset):
-    def __init__(self, database):
-        self.inputs = database[0]
-        self.targets = database[1]
+    def __init__(self, database, len_batches):
+        database = database[database != 'NULL'].astype(np.float64)
+        self.inputs = np.array([database[i:i + len_batches] for i in range(len(database) - len_batches - 1)])
+        self.targets = database[len_batches:]
 
     def __len__(self):
         return len(self.targets)
@@ -47,19 +48,19 @@ class MiniDataset(Dataset):
 
 class LargeDataset(Dataset):
     def __init__(self, database, len_batches=120, params=tuple(range(20))):
-        inputs = np.array([database[i:i+len_batches] for i in range(len(database) - len_batches - 1)])
-        self.targets = np.array([database[i] for i in range(len_batches, len(database))])
-        self.data = {params[i]: (inputs[:, :, i], self.targets[:, i]) for i in range(len(params))}
+        database = np.array(database)
+        self.len_batches = len_batches
+        self.data = {params[i]: database[:, i] for i in range(len(params))}
 
     def __len__(self):
-        return len(self.targets)
+        return len(self.data)
 
     def __getitem__(self, idx):
-        return MiniDataset(self.data[idx])
+        return MiniDataset(self.data[idx], self.len_batches)
 
 
 def train(model, dataloader, loss_function, optimizer=None):
-    model.test()
+    model.train()
     total_loss = 0
     for images, labels in tqdm(dataloader):
         outputs = model(images)
@@ -163,7 +164,7 @@ class LinearModel(nn.Module):
 
 
 if __name__ == '__main__':
-    whole_data = LargeDataset(column_sql('database/temporary.db'), params=headers)
+    whole_data = LargeDataset(column_sql('database/temporary.db'), params=tuple(headers.keys()))
     temp_data = whole_data['ТЕМВОЗДМ']
     train_dataset, test_dataset = random_split(temp_data, [0.9, 0.1])
     BATCH_SIZE = 64
@@ -186,5 +187,5 @@ if __name__ == '__main__':
         test_dl,
         NUM_EPOCHS,
         lr_scheduler,
-        save_model='/content/drive/MyDrive/lungs_model10',
+        save_model='lungs_model10',
     )
