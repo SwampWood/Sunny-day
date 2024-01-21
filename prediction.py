@@ -198,7 +198,7 @@ def create_prediction(type, data, le):
     dt = MiniDataset(data, period)
     res = []
     for i in range(le):
-        res.append(model(dt.to_form(temp)))
+        res.append(dt.reverse(dt.to_form(temp)))
         temp = temp[1:] + [res[-1]]
     return res
 
