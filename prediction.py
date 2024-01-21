@@ -34,7 +34,9 @@ class LRScheduler:
 class MiniDataset(Dataset):
     def __init__(self, database, len_batches):
         database = database[database != 'NULL'].astype(np.float64)
-        self.inputs = np.array([database[i:i + len_batches] for i in range(len(database) - len_batches - 1)])
+        self.inputs = database[:len_batches]
+        for i in tqdm(range(1, len(database) - len_batches - 1)):
+            self.inputs = np.vstack((self.inputs, database[i:i + len_batches]))
         self.targets = database[len_batches:]
 
     def __len__(self):
