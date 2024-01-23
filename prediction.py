@@ -1,13 +1,10 @@
 import torch
-import os
-import io
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from torch import nn, optim
+from torch import nn
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from torch.utils.data import DataLoader, Dataset, ConcatDataset, random_split
-from torchsummary import summary
+from torch.utils.data import DataLoader, Dataset, random_split
 from tqdm import tqdm
 from IPython.display import clear_output
 from sklearn.preprocessing import MinMaxScaler
@@ -17,8 +14,13 @@ from format import column_sql, headers
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 period = 120
 models = {
-    'Температура': 'models/temp'
+    'Температура': 'models/temp',
+    'Влажность': 'models/humid',
+    'Облачность': 'models/cloud',
+    'Осадки': 'models/osadk',
+    'Скорость ветра': 'models/wind'
 }
+
 
 class LRScheduler:
     def __init__(self, optimizer, patience=3, min_lr=1e-6, factor=0.1):
@@ -65,6 +67,9 @@ class MiniDataset(Dataset):
 
 
 class LargeDataset(Dataset):
+    required = ['ГОД', 'МЕСЯЦ', 'ДЕНЬ', 'ВРЕМЯМЕ', 'ВИДГОРИЗ', 'ОБЛОКОЛВ', 'ВЕТНАПРМ',
+                'ВЕТСКОРМ', 'ОСАСУМСР', 'ТЕМВОЗДМ', 'ВЛАОТВОМ', 'ДАВЛАУММ']
+
     def __init__(self, database, len_batches=period, params=tuple(range(20))):
         database = np.array(database)
         self.len_batches = len_batches
@@ -75,6 +80,13 @@ class LargeDataset(Dataset):
 
     def __getitem__(self, idx):
         return MiniDataset(self.data[idx], self.len_batches)
+
+    def to_pd(self):
+        temporary_data = {i: self.data[i] for i in LargeDataset.required}
+        df = pd.DataFrame(temporary_data)
+        df['ДАТА'] = pd.to_datetime(dict(year=temporary_data['ГОД'], month=temporary_data['МЕСЯЦ'], day=temporary_data['ДЕНЬ']))
+        df.drop(columns=['ГОД', 'МЕСЯЦ', 'ДЕНЬ'], inplace=True)
+        return df
 
 
 def train(model, dataloader, loss_function, optimizer=None):
