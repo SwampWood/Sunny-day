@@ -81,8 +81,6 @@ def to_sql(db, header=None, types=None):
 
 
 if __name__ == '__main__':
-    print(headers.keys())
-    pass
     try:
         os.remove('database/temporary.db')
     except Exception:
