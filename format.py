@@ -43,6 +43,22 @@ def from_dat(file_dir, decode='process/Srok8c.ddl'):
     return data, data_type
 
 
+def column_sql(db_name, target=None):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+    if target is None:
+        result = c.execute(f'''SELECT * FROM meteorological_data
+        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, ВРЕМЯМЕ''').fetchall()
+    else:
+        result = c.execute(f'''SELECT ? FROM meteorological_data
+        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, ВРЕМЯМЕ''', target).fetchall()
+
+    # Закрываем соединение
+    conn.close()
+
+    return result
+
+
 def to_sql(db, header=None, types=None):
     if header is None:
         header = list(headers.keys())
@@ -65,6 +81,8 @@ def to_sql(db, header=None, types=None):
 
 
 if __name__ == '__main__':
+    print(headers.keys())
+    pass
     try:
         os.remove('database/temporary.db')
     except Exception:
