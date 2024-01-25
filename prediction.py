@@ -83,7 +83,9 @@ class LargeDataset(Dataset):
 
     def to_pd(self):
         temporary_data = {i: self.data[i] for i in LargeDataset.required}
-        df = pd.DataFrame(temporary_data)
+        types = {i: float for i in LargeDataset.required}
+        df = pd.DataFrame(temporary_data).replace('NULL', np.nan)
+        df = df.astype(types)
         df['ДАТАВРЕМЯ'] = pd.to_datetime(dict(year=temporary_data['ГОД'], month=temporary_data['МЕСЯЦ'],
                                               day=temporary_data['ДЕНЬ'], hour=temporary_data['ВРЕМЯМЕ']))
         df.drop(columns=['ГОД', 'МЕСЯЦ', 'ДЕНЬ', 'ВРЕМЯМЕ'], inplace=True)
