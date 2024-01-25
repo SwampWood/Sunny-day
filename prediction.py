@@ -84,8 +84,9 @@ class LargeDataset(Dataset):
     def to_pd(self):
         temporary_data = {i: self.data[i] for i in LargeDataset.required}
         df = pd.DataFrame(temporary_data)
-        df['ДАТА'] = pd.to_datetime(dict(year=temporary_data['ГОД'], month=temporary_data['МЕСЯЦ'], day=temporary_data['ДЕНЬ']))
-        df.drop(columns=['ГОД', 'МЕСЯЦ', 'ДЕНЬ'], inplace=True)
+        df['ДАТАВРЕМЯ'] = pd.to_datetime(dict(year=temporary_data['ГОД'], month=temporary_data['МЕСЯЦ'],
+                                              day=temporary_data['ДЕНЬ'], hour=temporary_data['ВРЕМЯМЕ']))
+        df.drop(columns=['ГОД', 'МЕСЯЦ', 'ДЕНЬ', 'ВРЕМЯМЕ'], inplace=True)
         return df
 
 
@@ -216,7 +217,7 @@ def create_prediction(type, data, le):
 
 
 if __name__ == '__main__':
-    whole_data = LargeDataset(column_sql('drive/MyDrive/temporary.db'), params=tuple(headers.keys()))
+    whole_data = LargeDataset(column_sql('database/temporary.db'), params=tuple(headers.keys()))
     temp_data = whole_data['ТЕМВОЗДМ']
     train_dataset, test_dataset = random_split(temp_data, [0.9, 0.1])
     BATCH_SIZE = 64
