@@ -4,6 +4,7 @@ import json
 import sqlite3
 from tqdm import tqdm
 import os
+import pandas as pd
 from process.process import *
 
 with open('process/headers.json', encoding='UTF-8') as file:
@@ -43,6 +44,16 @@ def from_dat(file_dir, decode='process/Srok8c.ddl'):
     return data, data_type
 
 
+def from_csv(file_dir):
+    df = pd.read_csv(file_dir)
+    return df
+
+
+def from_xlsx(file_dir):
+    df = pd.read_excel(file_dir)
+    return df
+
+
 def column_sql(db_name, target=None):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
@@ -59,7 +70,7 @@ def column_sql(db_name, target=None):
     return result
 
 
-def to_sql(db, header=None, types=None):
+def to_sql(db, name='meteorological_data', header=None, types=None):
     if header is None:
         header = list(headers.keys())
     le = len(db[0])
@@ -69,9 +80,9 @@ def to_sql(db, header=None, types=None):
 
     conn = sqlite3.connect('database/temporary.db')
     c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS meteorological_data (' + head_line + ')')
+    c.execute('CREATE TABLE IF NOT EXISTS ? (' + head_line + ')', name)
     for value in db:
-        c.execute(f'INSERT INTO meteorological_data VALUES({",".join(["?"] * le)})', value)
+        c.execute(f'INSERT INTO ? VALUES({",".join(["?"] * le)})', [name] + list(value))
 
     # Сохраняем изменения
     conn.commit()
