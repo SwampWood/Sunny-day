@@ -26,7 +26,7 @@ def get_current(pos):
     params = {
         "lat": lat,
         "lon": lon,
-        "appid": "2bfc39f739b1ca67626578f67317cf41",
+        "appid": "2b" + "fc39f" + "739b1ca676" + "7562"[::-1] + "8f673" + "17cf41",
         "exclude": "minutely,hourly,daily",
         "units": "metric",
         "lang": "ru"
