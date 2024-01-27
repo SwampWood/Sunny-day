@@ -2,9 +2,10 @@ import sqlite3
 import sys
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow, QFileDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from format import from_dat, from_csv, from_xlsx, to_sql
 
 
 class Registration(QMainWindow):
@@ -98,18 +99,42 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi("ui/Главное меню.ui", self)
         self.Exit.clicked.connect(lambda: w.setCurrentIndex(0))
+        self.Load.clicked.connect(self.open_file)
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.verticalLayout_2.addWidget(self.canvas)
-        self.Error1.setVisible(False)
         self.Error2.setVisible(False)
+        self.Error2.setStyleSheet("color: red")
 
     def open_file(self):
-        filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".", "Text Files (*.txt);;All Files (*)")
+        self.Error2.setVisible(False)
+        filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".",
+                                                  "Text Files (*.dat);Tables(*.csv, *,xlsx);All Files (*)")
         if filename:
-            with open(filename, 'r') as file:
-                contents = file.read()
-            print(contents)
+            if self.comboBox.currentText().lower() != filename[filename.rfind('.') + 1:]:
+                self.Error2.setVisible(True)
+                self.Error2.setText("Несоответствие форматов файлов")
+            else:
+                data = None
+                types = None
+                if self.comboBox.currentText() == 'DAT':
+                    data, types = from_dat(filename)
+                elif self.comboBox.currentText() == 'CSV':
+                    data = from_csv(filename)
+                elif self.comboBox.currentText() == 'XLSX':
+                    data = from_xlsx(filename)
+                else:
+                    self.Error2.setVisible(True)
+                    self.Error2.setText("Неверный формат файла")
+                to_sql(data, name=filename[filename.rfind('/') + 1:filename.rfind('.')],
+                       header=data.columns.values.tolist(), types=types)
+                self.Error2.setVisible(True)
+                self.Error2.setStyleSheet("color: green")
+                self.Error2.setText("Файл успешно загружен")
+
+        else:
+            self.Error2.setVisible(True)
+            self.Error2.setText("Ошибка выполнения")
 
 
 if __name__ == '__main__':

@@ -41,7 +41,7 @@ def from_dat(file_dir, decode='process/Srok8c.ddl'):
     for i in range(len(data_type)):
         if data_type[i] is None:
             data_type[i] = 'STRING'
-    return data, data_type
+    return pd.DataFrame(data, columns=headers.keys()), data_type
 
 
 def from_csv(file_dir):
@@ -73,16 +73,16 @@ def column_sql(db_name, target=None):
 def to_sql(db, name='meteorological_data', header=None, types=None):
     if header is None:
         header = list(headers.keys())
-    le = len(db[0])
+    le = len(db.columns)
     if types is None:
         types = ['REAL'] * (len(headers) if headers else le)
     head_line = ', '.join(header[i] + ' ' + types[i] for i in range(le))
 
     conn = sqlite3.connect('database/temporary.db')
     c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS ? (' + head_line + ')', name)
-    for value in db:
-        c.execute(f'INSERT INTO ? VALUES({",".join(["?"] * le)})', [name] + list(value))
+    c.execute(f'CREATE TABLE IF NOT EXISTS "{name}"({head_line})')
+    for index, value in tqdm(db.iterrows()):
+        c.execute(f'INSERT INTO "{name}" VALUES({",".join(["?"] * le)})', list(value))
 
     # Сохраняем изменения
     conn.commit()
