@@ -22,7 +22,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>15</number>
       </property>
@@ -157,6 +157,22 @@
         </property>
         <property name="text">
          <string>Войти</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_Errors">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

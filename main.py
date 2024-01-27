@@ -2,8 +2,9 @@ import sqlite3
 import sys
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QStackedWidget
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QFormLayout
+from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 class Registration(QMainWindow):
@@ -43,6 +44,7 @@ class Registration(QMainWindow):
                 else:
                     params = (email, login, password)
                     cur.execute("INSERT INTO entrance VALUES(?, ?, ?)", params)
+                    w.setCurrentIndex(3)
 
 
 class Authorization(QMainWindow):
@@ -81,6 +83,7 @@ class Authorization(QMainWindow):
                 else:
                     self.label_Errors.setVisible(True)
                     self.label_Errors.setText('Пароль верный')
+                    w.setCurrentIndex(3)
 
 
 class FirstWindow(QMainWindow):
@@ -90,15 +93,36 @@ class FirstWindow(QMainWindow):
         self.Exit.clicked.connect(sys.exit)
 
 
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("ui/Главное меню.ui", self)
+        self.Exit.clicked.connect(lambda: w.setCurrentIndex(0))
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.verticalLayout_2.addWidget(self.canvas)
+        self.Error1.setVisible(False)
+        self.Error2.setVisible(False)
+
+    def open_file(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".", "Text Files (*.txt);;All Files (*)")
+        if filename:
+            with open(filename, 'r') as file:
+                contents = file.read()
+            print(contents)
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     exe = FirstWindow()
     registr = Registration()
     auth = Authorization()
+    main = MainWindow()
     w = QStackedWidget()
     w.addWidget(exe)
     w.addWidget(auth)
     w.addWidget(registr)
+    w.addWidget(main)
 
     exe.Entrance_Button.clicked.connect(lambda: w.setCurrentIndex(1))
     exe.Registration_Button.clicked.connect(lambda: w.setCurrentIndex(2))
