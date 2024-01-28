@@ -22,6 +22,16 @@ models = {
 }
 
 
+def sort_(df):
+    mod_df = df.copy()
+    mod_df.fillna(method='ffill', inplace=True)
+    mod_df.sort_values('ДАТАВРЕМЯ', inplace=True)
+    mod_df.set_index('ДАТАВРЕМЯ', inplace=True)
+    mod_df = mod_df.asfreq(freq='3h')
+
+    return mod_df
+
+
 class LRScheduler:
     def __init__(self, optimizer, patience=3, min_lr=1e-6, factor=0.1):
         self.optimizer = optimizer
@@ -71,9 +81,8 @@ class LargeDataset(Dataset):
                 'ВЕТСКОРМ', 'ОСАСУМСР', 'ТЕМВОЗДМ', 'ВЛАОТВОМ', 'ДАВЛАУММ']
 
     def __init__(self, database, len_batches=period, params=tuple(range(20))):
-        database = np.array(database)
         self.len_batches = len_batches
-        self.data = {params[i]: database[:, i] for i in range(len(params))}
+        self.data = {params[i]: database[params[i]].values for i in range(len(params))}
 
     def __len__(self):
         return len(self.data)
@@ -89,7 +98,7 @@ class LargeDataset(Dataset):
         df['ДАТАВРЕМЯ'] = pd.to_datetime(dict(year=temporary_data['ГОД'], month=temporary_data['МЕСЯЦ'],
                                               day=temporary_data['ДЕНЬ'], hour=temporary_data['ВРЕМЯМЕ']))
         df.drop(columns=['ГОД', 'МЕСЯЦ', 'ДЕНЬ', 'ВРЕМЯМЕ'], inplace=True)
-        return df
+        return sort_(df)
 
 
 def train(model, dataloader, loss_function, optimizer=None):

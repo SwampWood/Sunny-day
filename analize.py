@@ -4,7 +4,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 import matplotlib.pyplot as plt
 import numpy as np
 from format import column_sql, headers
-from prediction import LargeDataset
+from prediction import LargeDataset, sort_
 
 
 def check_stat(data):
@@ -21,16 +21,6 @@ def characteristics(df):
     df_dup = pd.DataFrame([mean, mode, median, max_, min_],
                           index=('Среднее', 'Мода', 'Медиана', 'Максимум', 'Минимум'))
     return df_dup.drop(columns=['ДАТАВРЕМЯ'])
-
-
-def sort_(df):
-    mod_df = df.copy()
-    mod_df.fillna(method='ffill', inplace=True)
-    mod_df.sort_values('ДАТАВРЕМЯ', inplace=True)
-    mod_df.set_index('ДАТАВРЕМЯ', inplace=True)
-    mod_df = mod_df.asfreq(freq='3h')
-
-    return mod_df
 
 
 def combine_seas_cols(df):

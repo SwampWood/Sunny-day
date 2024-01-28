@@ -1,12 +1,24 @@
 import sqlite3
 import sys
+import random
 
-from PyQt5 import uic
+from PyQt5 import uic, QtWidgets, QtGui
 from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow, QFileDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from format import from_dat, from_csv, from_xlsx, to_sql
+from format import *
+from prediction import LargeDataset
 
+
+class MyCalendar(QtWidgets.QCalendarWidget):
+    def __init__(self, parent=None):
+        QtWidgets.QCalendarWidget.__init__(self, parent)
+
+    def paintCell(self, painter, rect, date):
+        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
+        if date == date.currentDate():
+            painter.setBrush(QtGui.QColor(0, 200, 200, 50))
+            painter.drawRect(rect)
 
 class Registration(QMainWindow):
     def __init__(self):
@@ -98,16 +110,32 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi("ui/Главное меню.ui", self)
+        self.con = sqlite3.connect('database/temporary.db')
+        self.cursor = self.con.cursor()
+        self.df = None
+        self.df2 = None
+
         self.Exit.clicked.connect(lambda: w.setCurrentIndex(0))
+        self.Exit_2.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Load.clicked.connect(self.open_file)
+
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.verticalLayout_2.addWidget(self.canvas)
+
         self.Error2.setVisible(False)
         self.Error2.setStyleSheet("color: red")
 
+        self.comboBox_2.currentTextChanged.connect(self.change_options)
+        self.comboBox_4.currentTextChanged.connect(self.change_options2)
+        self.comboBox_3.currentTextChanged.connect(self.plot)
+        self.dateEdit.dateChanged.connect(self.plot)
+        self.dateEdit_2.dateChanged.connect(self.plot)
+        self.set_options()
+
     def open_file(self):
         self.Error2.setVisible(False)
+        self.Error2.setStyleSheet("color: red")
         filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".",
                                                   "Text Files (*.dat);Tables(*.csv, *,xlsx);All Files (*)")
         if filename:
@@ -126,8 +154,9 @@ class MainWindow(QMainWindow):
                 else:
                     self.Error2.setVisible(True)
                     self.Error2.setText("Неверный формат файла")
-                to_sql(data, name=filename[filename.rfind('/') + 1:filename.rfind('.')],
-                       header=data.columns.values.tolist(), types=types)
+                name = filename[filename.rfind('/') + 1:filename.rfind('.')]
+                to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
+                self.comboBox_2.addItem(name)
                 self.Error2.setVisible(True)
                 self.Error2.setStyleSheet("color: green")
                 self.Error2.setText("Файл успешно загружен")
@@ -135,6 +164,52 @@ class MainWindow(QMainWindow):
         else:
             self.Error2.setVisible(True)
             self.Error2.setText("Ошибка выполнения")
+
+    def set_options(self):
+        res = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        for (i,) in res:
+            self.comboBox_2.addItem(i)
+            self.comboBox_4.addItem(i)
+
+    # 1 экран
+    def change_options(self):
+        self.comboBox_3.clear()
+        self.df = LargeDataset(column_sql(self.comboBox_2.currentText()), params=tuple(headers.keys())).to_pd()
+        if self.comboBox_2.currentText().isdigit():
+            des = LargeDataset.required
+            for j in des[4:]:
+                self.comboBox_3.addItem(j)
+        else:
+            des = self.cursor.execute(f'SELECT * FROM "{self.comboBox_2.currentText()}"').description
+            for j in des:
+                self.comboBox_3.addItem(j[0])
+
+    def plot(self):
+        self.figure.clear()
+
+        ax = self.figure.add_subplot(111)
+
+        ax.clear()
+
+        date1 = self.dateEdit.date().toString('yyyy-MM-dd')
+        date2 = self.dateEdit_2.date().toString('yyyy-MM-dd')
+        ax.plot(self.df.loc[date1:date2].index.values,
+                self.df.loc[date1:date2][self.comboBox_3.currentText()].values)
+
+        self.canvas.draw()
+
+    # 2 экран
+    def change_options2(self):
+        self.comboBox_3.clear()
+        self.df = LargeDataset(column_sql(self.comboBox_2.currentText()), params=tuple(headers.keys())).to_pd()
+        if self.comboBox_2.currentText().isdigit():
+            des = LargeDataset.required
+            for j in des[4:]:
+                self.comboBox_3.addItem(j)
+        else:
+            des = self.cursor.execute(f'SELECT * FROM "{self.comboBox_2.currentText()}"').description
+            for j in des:
+                self.comboBox_3.addItem(j[0])
 
 
 if __name__ == '__main__':

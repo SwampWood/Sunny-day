@@ -1,9 +1,6 @@
-import csv
-import xlsxwriter
 import json
 import sqlite3
 from tqdm import tqdm
-import os
 import pandas as pd
 from process.process import *
 
@@ -54,15 +51,14 @@ def from_xlsx(file_dir):
     return df
 
 
-def column_sql(db_name, target=None):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+def column_sql(db_name, dir='database/temporary.db', target=None):
+    conn = sqlite3.connect(dir)
     if target is None:
-        result = c.execute(f'''SELECT * FROM meteorological_data
-        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, ВРЕМЯМЕ''').fetchall()
+        result = pd.read_sql_query(f'''SELECT * FROM "{db_name}"
+        ORDER BY ГОД, МЕСЯЦ, ДЕНЬ, ВРЕМЯМЕ''', conn)
     else:
-        result = c.execute(f'''SELECT ? FROM meteorological_data
-        ORDER BY ГОДГР, МЕСЯЦГР, ДЕНЬГР, ВРЕМЯМЕ''', target).fetchall()
+        result = pd.read_sql_query(f'''SELECT {target} FROM "{db_name}"
+        ORDER BY ГОД, МЕСЯЦ, ДЕНЬ, ВРЕМЯМЕ''', conn)
 
     # Закрываем соединение
     conn.close()
@@ -92,9 +88,4 @@ def to_sql(db, name='meteorological_data', header=None, types=None):
 
 
 if __name__ == '__main__':
-    try:
-        os.remove('database/temporary.db')
-    except Exception:
-        os.remove('database/temporary.db')
-    db, data_types = from_dat('forecasts/20046.dat')
-    to_sql(db, types=data_types)
+    print(column_sql('20087'))
