@@ -32,7 +32,7 @@ def combine_seas_cols(df):
 
 
 def mround(x, m=5):
-    return int(m * round(float(x)/m))
+    return int(m * round(float(x) / m))
 
 
 def plot_components(df):
@@ -42,8 +42,8 @@ def plot_components(df):
         df (pandas dataframe)
     """
     df_axis = df.fillna(0)
-    ymin = mround(np.min([df_axis.observed, df_axis.trend, df_axis.seasonal]),5)
-    ymax = mround(np.max([df_axis.observed, df_axis.trend, df_axis.seasonal]),5)
+    ymin = mround(np.min([df_axis.observed, df_axis.trend, df_axis.seasonal]), 5)
+    ymax = mround(np.max([df_axis.observed, df_axis.trend, df_axis.seasonal]), 5)
     ymin -= 5
     ymax += 5
     objects = np.array([df_axis.observed, df_axis.trend, df_axis.seasonal]).T

@@ -1,24 +1,42 @@
 import sqlite3
 import sys
-import random
+import analize
 
-from PyQt5 import uic, QtWidgets, QtGui
+from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow, QFileDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from format import *
-from prediction import LargeDataset
+from prediction import LargeDataset, sort_
 
 
-class MyCalendar(QtWidgets.QCalendarWidget):
-    def __init__(self, parent=None):
-        QtWidgets.QCalendarWidget.__init__(self, parent)
+class PandasModel(QtCore.QAbstractTableModel):
+    """
+    Class to populate a table view with a pandas dataframe
+    """
+    def __init__(self, data, parent=None):
+        QtCore.QAbstractTableModel.__init__(self, parent)
+        self._data = data
 
-    def paintCell(self, painter, rect, date):
-        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
-        if date == date.currentDate():
-            painter.setBrush(QtGui.QColor(0, 200, 200, 50))
-            painter.drawRect(rect)
+    def rowCount(self, parent=None):
+        return len(self._data.index)
+
+    def columnCount(self, parent=None):
+        return self._data.columns.size
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if index.isValid():
+            if role == QtCore.Qt.DisplayRole:
+                return str(self._data.iloc[index.row()][index.column()])
+        return None
+
+    def headerData(self, rowcol, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self._data.columns[rowcol]
+        if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
+            return self._data.index[rowcol]
+        return None
+
 
 class Registration(QMainWindow):
     def __init__(self):
@@ -132,6 +150,7 @@ class MainWindow(QMainWindow):
         self.dateEdit.dateChanged.connect(self.plot)
         self.dateEdit_2.dateChanged.connect(self.plot)
         self.set_options()
+        self.ShowGraph.clicked.connect(self.show_graph)
 
     def open_file(self):
         self.Error2.setVisible(False)
@@ -200,16 +219,24 @@ class MainWindow(QMainWindow):
 
     # 2 экран
     def change_options2(self):
-        self.comboBox_3.clear()
-        self.df = LargeDataset(column_sql(self.comboBox_2.currentText()), params=tuple(headers.keys())).to_pd()
-        if self.comboBox_2.currentText().isdigit():
+        self.comboBox_5.clear()
+        self.df2 = LargeDataset(column_sql(self.comboBox_4.currentText()),
+                                params=tuple(headers.keys())).to_pd().reset_index()
+        if self.comboBox_4.currentText().isdigit():
             des = LargeDataset.required
             for j in des[4:]:
-                self.comboBox_3.addItem(j)
+                self.comboBox_5.addItem(j)
         else:
-            des = self.cursor.execute(f'SELECT * FROM "{self.comboBox_2.currentText()}"').description
+            des = self.cursor.execute(f'SELECT * FROM "{self.comboBox_4.currentText()}"').description
             for j in des:
-                self.comboBox_3.addItem(j[0])
+                self.comboBox_5.addItem(j[0])
+        model = PandasModel(analize.characteristics(self.df2))
+        self.tableView.setModel(model)
+
+    def show_graph(self):
+        df3 = sort_(self.df2[['ДАТАВРЕМЯ', self.comboBox_5.currentText()]])
+        analize.combine_seas_cols(df3)
+        analize.plot_components(df3)
 
 
 if __name__ == '__main__':
