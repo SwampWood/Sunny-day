@@ -1285,6 +1285,103 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer_19">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Preferred</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>30</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_18">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>31</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>400</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+            </property>
+            <property name="text">
+             <string>Период</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_8">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>400</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>3 часа</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>12 часов</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1 день</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3 дня</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1 неделя</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>2 недели</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>1 месяц</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer_12">
             <property name="orientation">
              <enum>Qt::Vertical</enum>

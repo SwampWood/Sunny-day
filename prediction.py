@@ -20,6 +20,15 @@ models = {
     'Осадки': 'models/osadk',
     'Скорость ветра': 'models/wind'
 }
+lens = {
+    '3 часа': 1,
+    '12 часов': 4,
+    '1 день': 8,
+    '3 дня': 24,
+    '1 неделя': 56,
+    '2 недели': 112,
+    '1 месяц': 240
+}
 
 
 def sort_(df):
@@ -222,9 +231,17 @@ def create_prediction(type, data, le):
     dt = MiniDataset(data, period)
     res = []
     for i in range(le):
-        res.append(dt.reverse(dt.to_form(temp)))
+        res.append(dt.reverse(model(dt.to_form(temp))))
         temp = temp[1:] + [res[-1]]
     return res
+
+
+def format_predictions(df, le):
+    le = lens[le]
+    res_df = df['ДАТАВРЕМЯ'].copy()
+    for i in LargeDataset.required[4:]:
+        res_df[i] = create_prediction(i, df[i].values, le)
+    return res_df
 
 
 if __name__ == '__main__':
