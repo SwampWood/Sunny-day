@@ -36,11 +36,6 @@ def mround(x, m=5):
 
 
 def plot_components(df):
-    """Plot data for initial visualization, ultimately visualized in Power BI
-
-    Args:
-        df (pandas dataframe)
-    """
     df_axis = df.fillna(0)
     ymin = mround(np.min([df_axis.observed, df_axis.trend, df_axis.seasonal]), 5)
     ymax = mround(np.max([df_axis.observed, df_axis.trend, df_axis.seasonal]), 5)

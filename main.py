@@ -136,6 +136,8 @@ class MainWindow(QMainWindow):
         self.Exit.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Exit_2.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Load.clicked.connect(self.open_file)
+        self.checkBox.stateChanged.connect(self.show_url)
+        self.lineEdit_2.setVisible(False)
 
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
@@ -152,37 +154,64 @@ class MainWindow(QMainWindow):
         self.set_options()
         self.ShowGraph.clicked.connect(self.show_graph)
 
+    def show_url(self):
+        self.lineEdit_2.setVisible(self.checkBox.isChecked())
+
     def open_file(self):
         self.Error2.setVisible(False)
         self.Error2.setStyleSheet("color: red")
-        filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".",
-                                                  "Text Files (*.dat);Tables(*.csv, *,xlsx);All Files (*)")
-        if filename:
-            if self.comboBox.currentText().lower() != filename[filename.rfind('.') + 1:]:
-                self.Error2.setVisible(True)
-                self.Error2.setText("Несоответствие форматов файлов")
-            else:
+        if self.checkBox.isChecked():
+            url = self.lineEdit_2.text()
+            if url:
                 data = None
                 types = None
                 if self.comboBox.currentText() == 'DAT':
-                    data, types = from_dat(filename)
+                    data, types = from_dat(url, is_url=True)
                 elif self.comboBox.currentText() == 'CSV':
-                    data = from_csv(filename)
+                    data = from_csv(url)
                 elif self.comboBox.currentText() == 'XLSX':
-                    data = from_xlsx(filename)
+                    data = from_xlsx(url)
                 else:
                     self.Error2.setVisible(True)
                     self.Error2.setText("Неверный формат файла")
-                name = filename[filename.rfind('/') + 1:filename.rfind('.')]
+                    pass
+                name = url[url.rfind('/') + 1:url.rfind('.')]
                 to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
                 self.comboBox_2.addItem(name)
                 self.Error2.setVisible(True)
                 self.Error2.setStyleSheet("color: green")
                 self.Error2.setText("Файл успешно загружен")
-
         else:
-            self.Error2.setVisible(True)
-            self.Error2.setText("Ошибка выполнения")
+            filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".",
+                                                      "Text Files (*.dat);;Tables(*.csv, *,xlsx);;All Files (*)")
+            print(filename)
+            if filename:
+                if self.comboBox.currentText().lower() != filename[filename.rfind('.') + 1:]:
+                    self.Error2.setVisible(True)
+                    self.Error2.setText("Несоответствие форматов файлов")
+                else:
+                    data = None
+                    types = None
+                    if self.comboBox.currentText() == 'DAT':
+                        data, types = from_dat(filename)
+                    elif self.comboBox.currentText() == 'CSV':
+                        data = from_csv(filename)
+                    elif self.comboBox.currentText() == 'XLSX':
+                        data = from_xlsx(filename)
+                    else:
+                        self.Error2.setVisible(True)
+                        self.Error2.setText("Неверный формат файла")
+                        pass
+                    name = filename[filename.rfind('/') + 1:filename.rfind('.')]
+                    to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
+                    self.comboBox_2.addItem(name)
+                    self.Error2.setVisible(True)
+                    self.Error2.setStyleSheet("color: green")
+                    self.Error2.setText("Файл успешно загружен")
+
+            else:
+                self.Error2.setVisible(True)
+                self.Error2.setText("Ошибка выполнения")
 
     def set_options(self):
         res = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()

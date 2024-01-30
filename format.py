@@ -3,41 +3,48 @@ import sqlite3
 from tqdm import tqdm
 import pandas as pd
 from process.process import *
+import urllib.request
 
 with open('process/headers.json', encoding='UTF-8') as file:
     headers = json.load(file)
 
 
-def from_dat(file_dir, decode='process/Srok8c.ddl'):
+def from_dat(file_dir, decode='process/Srok8c.ddl', is_url=False):
     all_, use_ = delim(decode)
-    with open(file_dir) as f:
-        data = []
-        data_type = [None] * len(all_)
-        for i in tqdm(f.readlines()):
-            i = i.strip()
-            row = []
-            cur = 0
-            for j in range(len(all_)):
-                cur += all_[j]
-                idx = i[cur - all_[j]:cur]
-                idx = idx.replace(' ', '')
+    if is_url:
+        f_read = urllib.request.urlopen(file_dir)
+    else:
+        f = open(file_dir)
+        f_read = f.readlines()
+    data = []
+    data_type = [None] * len(all_)
+    for i in tqdm(f_read):
+        i = i.strip()
+        row = []
+        cur = 0
+        for j in range(len(all_)):
+            cur += all_[j]
+            idx = i[cur - all_[j]:cur]
+            idx = idx.replace(' ', '')
 
-                if data_type[j] is None and idx and '.' in idx:
-                    data_type[j] = 'REAL'
-                    row.append(float(idx))
-                elif data_type[j] is None and idx:
-                    data_type[j] = 'INT'
-                    row.append(int(idx))
-                elif not idx:
-                    row.append('NULL')
-                elif data_type[j] == 'REAL':
-                    row.append(float(idx))
-                elif data_type[j] == 'INT':
-                    row.append(int(idx))
-            data.append(row)
+            if data_type[j] is None and idx and '.' in idx:
+                data_type[j] = 'REAL'
+                row.append(float(idx))
+            elif data_type[j] is None and idx:
+                data_type[j] = 'INT'
+                row.append(int(idx))
+            elif not idx:
+                row.append('NULL')
+            elif data_type[j] == 'REAL':
+                row.append(float(idx))
+            elif data_type[j] == 'INT':
+                row.append(int(idx))
+        data.append(row)
     for i in range(len(data_type)):
         if data_type[i] is None:
             data_type[i] = 'STRING'
+    if not is_url:
+        f.close()
     return pd.DataFrame(data, columns=headers.keys()), data_type
 
 
