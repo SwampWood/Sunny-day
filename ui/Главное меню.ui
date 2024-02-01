@@ -86,43 +86,6 @@
            </spacer>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>400</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
-            </property>
-            <property name="maxVisibleItems">
-             <number>3</number>
-            </property>
-            <item>
-             <property name="text">
-              <string>DAT</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>CSV</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>XLSX</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="checkBox">
             <property name="maximumSize">
              <size>
@@ -278,6 +241,43 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>400</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+            </property>
+            <property name="maxVisibleItems">
+             <number>3</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>DAT</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CSV</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>XLSX</string>
+             </property>
+            </item>
+           </widget>
           </item>
           <item>
            <widget class="QComboBox" name="comboBox_7">
@@ -895,22 +895,6 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
            <number>0</number>
           </property>
           <item>
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QLabel" name="label_6">
             <property name="minimumSize">
              <size>
@@ -1176,22 +1160,6 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
           <property name="rightMargin">
            <number>0</number>
           </property>
-          <item>
-           <spacer name="verticalSpacer_8">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item>
            <widget class="QLabel" name="label_12">
             <property name="minimumSize">
@@ -1464,21 +1432,6 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
           <item>
            <widget class="QTableView" name="tableView_2"/>
           </item>
-          <item>
-           <widget class="QPushButton" name="ShowGraph_2">
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
-            </property>
-            <property name="text">
-             <string>Посмотреть графики</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
        </layout>
@@ -1493,22 +1446,6 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
           <property name="rightMargin">
            <number>0</number>
           </property>
-          <item>
-           <spacer name="verticalSpacer_11">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item>
            <widget class="QLabel" name="label_14">
             <property name="minimumSize">
@@ -1668,7 +1605,7 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
              <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Прогноз&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Текущая погода&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="scaledContents">
              <bool>true</bool>

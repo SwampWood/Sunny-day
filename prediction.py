@@ -20,6 +20,20 @@ models = {
     'Осадки': 'models/osadk',
     'Скорость ветра': 'models/wind'
 }
+abreviations = {
+    'ТЕМП': 'Температура',
+    'ТЕМВОЗДМ': 'Температура',
+    'ТЕМПЕРАТУРА': 'Температура',
+    'ВЛАЖН': 'Влажность',
+    'ВЛАЖНОСТЬ': 'Влажность',
+    'ВЛАОТВОМ': 'Влажность',
+    'ОБЛАЧНОСТЬ': 'Облачность',
+    'ОБЛОКОЛВ': 'Облачность',
+    'ОСАДКИ': 'Осадки',
+    'ОСАСУМСР': 'Осадки',
+    'СКОРОСТЬ ВЕТРА': 'Скорость ветра',
+    'ВЕТСКОРМ': 'Скорость ветра'
+}
 lens = {
     '3 часа': 1,
     '12 часов': 4,
@@ -64,7 +78,6 @@ class MiniDataset(Dataset):
         self.scaler = MinMaxScaler()
         database = torch.flatten(torch.from_numpy(
             self.scaler.fit_transform(database[database != 'NULL'].astype(np.float32).reshape(-1, 1)))).to(device)
-        print(database)
         self.len_batch = len_batches
         self.database = database
         self.targets = database[len_batches:]
@@ -78,7 +91,7 @@ class MiniDataset(Dataset):
         return x, y
 
     def reverse(self, x):
-        return self.scaler.inverse_transform(x)
+        return self.scaler.inverse_transform(x.detach().numpy())
     
     def to_form(self, x):
         return torch.flatten(torch.from_numpy(
@@ -225,48 +238,35 @@ class LSTMModel(nn.Module):
 
 def create_prediction(type, data, le):
     model = LSTMModel(period, 64, 3, 1, 0.2).to(device)
-    model.load_state_dict(torch.load(models[type]))
+    if device.type == 'cpu':
+        model.load_state_dict(torch.load(models[type], map_location=torch.device('cpu')))
+    else:
+        model.load_state_dict(torch.load(models[type]))
     model.eval()
     temp = data[len(data) - period:]
     dt = MiniDataset(data, period)
     res = []
     for i in range(le):
-        res.append(dt.reverse(model(dt.to_form(temp))))
-        temp = temp[1:] + [res[-1]]
-    return res
+        res.append(dt.reverse(model(dt.to_form(temp)[None]))[0][0])
+        temp = np.append(temp[1:], res[-1])
+    return np.array(res)
 
 
 def format_predictions(df, le):
     le = lens[le]
-    res_df = df['ДАТАВРЕМЯ'].copy()
-    for i in LargeDataset.required[4:]:
-        res_df[i] = create_prediction(i, df[i].values, le)
+    time_sp = []
+    start = df['ДАТАВРЕМЯ'].iloc[-1]
+    for i in range(1, le + 1):
+        time_sp += [start + pd.Timedelta("3h") * i]
+    res_df = pd.DataFrame(data={'ДАТАВРЕМЯ': time_sp})
+    print(res_df)
+    for i in df.columns:
+        if i in abreviations:
+            res_df[i] = create_prediction(abreviations[i], df[i].values, le)
     return res_df
 
 
 if __name__ == '__main__':
-    whole_data = LargeDataset(column_sql('database/temporary.db'), params=tuple(headers.keys()))
-    temp_data = whole_data['ТЕМВОЗДМ']
-    train_dataset, test_dataset = random_split(temp_data, [0.9, 0.1])
-    BATCH_SIZE = 64
-    NUM_EPOCHS = 200
-    model = LSTMModel(period, 64, 3, 1, 0.2).to(device)
-
-    optim = torch.optim.Adam(model.parameters(), lr=1e-3)
-    loss = nn.MSELoss(reduction='mean')
-
-    train_dl = DataLoader(train_dataset, BATCH_SIZE, True)
-    test_dl = DataLoader(test_dataset, BATCH_SIZE, False)
-
-    lr_scheduler = LRScheduler(optim, min_lr=1e-9)
-
-    run_train_loop(
-        model,
-        optim,
-        loss,
-        train_dl,
-        test_dl,
-        NUM_EPOCHS,
-        lr_scheduler,
-        save_model='model',
-    )
+    df = LargeDataset(column_sql('20046'), params=tuple(headers.keys())).to_pd().reset_index()
+    df4 = format_predictions(df, '12 часов')
+    print(df4)

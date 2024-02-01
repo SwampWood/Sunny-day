@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow, QFileDial
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from format import *
-from prediction import LargeDataset, sort_
+from prediction import LargeDataset, sort_, format_predictions
 
 
 class PandasModel(QtCore.QAbstractTableModel):
@@ -149,6 +149,7 @@ class MainWindow(QMainWindow):
         self.comboBox_2.currentTextChanged.connect(self.change_options)
         self.comboBox_4.currentTextChanged.connect(self.change_options2)
         self.comboBox_3.currentTextChanged.connect(self.plot)
+        self.comboBox_8.currentTextChanged.connect(self.predict)
         self.dateEdit.dateChanged.connect(self.plot)
         self.dateEdit_2.dateChanged.connect(self.plot)
         self.set_options()
@@ -162,14 +163,15 @@ class MainWindow(QMainWindow):
         self.Error2.setStyleSheet("color: red")
         if self.checkBox.isChecked():
             url = self.lineEdit_2.text()
+            type_ = url.split('.')[-1].upper()
             if url:
                 data = None
                 types = None
-                if self.comboBox.currentText() == 'DAT':
+                if type_ == 'DAT':
                     data, types = from_dat(url, is_url=True)
-                elif self.comboBox.currentText() == 'CSV':
+                elif type_ == 'CSV':
                     data = from_csv(url)
-                elif self.comboBox.currentText() == 'XLSX':
+                elif type_ == 'XLSX':
                     data = from_xlsx(url)
                 else:
                     self.Error2.setVisible(True)
@@ -178,36 +180,49 @@ class MainWindow(QMainWindow):
                 name = url[url.rfind('/') + 1:url.rfind('.')]
                 to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
                 self.comboBox_2.addItem(name)
+                self.comboBox_4.addItem(name)
+                self.comboBox_6.addItem(name)
                 self.Error2.setVisible(True)
                 self.Error2.setStyleSheet("color: green")
                 self.Error2.setText("Файл успешно загружен")
         else:
-            filename, _ = QFileDialog.getOpenFileName(self, "Open File", ".",
-                                                      "Text Files (*.dat);;Tables(*.csv, *,xlsx);;All Files (*)")
-            print(filename)
+            filename, type_ = QFileDialog.getOpenFileName(self, "Open File", ".",
+                                                          "Text Files (*.dat);;Tables(*.csv);;Tables(*.xlsx);;All Files (*)")
+            print(filename, type_)
             if filename:
-                if self.comboBox.currentText().lower() != filename[filename.rfind('.') + 1:]:
-                    self.Error2.setVisible(True)
-                    self.Error2.setText("Несоответствие форматов файлов")
-                else:
-                    data = None
-                    types = None
-                    if self.comboBox.currentText() == 'DAT':
-                        data, types = from_dat(filename)
-                    elif self.comboBox.currentText() == 'CSV':
-                        data = from_csv(filename)
-                    elif self.comboBox.currentText() == 'XLSX':
-                        data = from_xlsx(filename)
-                    else:
+                data = None
+                types = None
+                if type_ == '*':
+                    if filename[filename.rfind('.') + 1:] not in ['dat', 'csv', 'xslx']:
                         self.Error2.setVisible(True)
-                        self.Error2.setText("Неверный формат файла")
+                        self.Error2.setText("Недопустимый формат файла")
                         pass
-                    name = filename[filename.rfind('/') + 1:filename.rfind('.')]
-                    to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
-                    self.comboBox_2.addItem(name)
-                    self.Error2.setVisible(True)
-                    self.Error2.setStyleSheet("color: green")
-                    self.Error2.setText("Файл успешно загружен")
+                    elif filename[filename.rfind('.') + 1:] == 'dat':
+                        data, types = from_dat(filename)
+                    elif filename[filename.rfind('.') + 1:] == 'csv':
+                        data = from_csv(filename)
+                    elif filename[filename.rfind('.') + 1:] == 'xlsx':
+                        data = from_xlsx(filename)
+                else:
+                    try:
+                        if type_ == 'Text Files (*.dat)':
+                            data, types = from_dat(filename)
+                        elif type_ == 'Tables(*.csv)':
+                            data = from_csv(filename)
+                        elif type_ == 'Tables(*.xlsx)':
+                            data = from_xlsx(filename)
+                    except Exception:
+                        self.Error2.setVisible(True)
+                        self.Error2.setText("Непредвиденная ошибка загрузки")
+                        pass
+                name = filename[filename.rfind('/') + 1:filename.rfind('.')]
+                to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
+                self.comboBox_2.addItem(name)
+                self.comboBox_4.addItem(name)
+                self.comboBox_6.addItem(name)
+                self.Error2.setVisible(True)
+                self.Error2.setStyleSheet("color: green")
+                self.Error2.setText("Файл успешно загружен")
 
             else:
                 self.Error2.setVisible(True)
@@ -218,6 +233,7 @@ class MainWindow(QMainWindow):
         for (i,) in res:
             self.comboBox_2.addItem(i)
             self.comboBox_4.addItem(i)
+            self.comboBox_6.addItem(i)
 
     # 1 экран
     def change_options(self):
@@ -266,6 +282,13 @@ class MainWindow(QMainWindow):
         df3 = sort_(self.df2[['ДАТАВРЕМЯ', self.comboBox_5.currentText()]])
         analize.combine_seas_cols(df3)
         analize.plot_components(df3)
+
+    # 3 экран
+    def predict(self):
+        df = LargeDataset(column_sql(self.comboBox_6.currentText()), params=tuple(headers.keys())).to_pd().reset_index()
+        df4 = format_predictions(df, self.comboBox_8.currentText())
+        model = PandasModel(df4)
+        self.tableView_2.setModel(model)
 
 
 if __name__ == '__main__':
