@@ -135,6 +135,7 @@ class MainWindow(QMainWindow):
 
         self.Exit.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Exit_2.clicked.connect(lambda: w.setCurrentIndex(0))
+        self.Exit_3.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Load.clicked.connect(self.open_file)
         self.checkBox.stateChanged.connect(self.show_url)
         self.lineEdit_2.setVisible(False)
