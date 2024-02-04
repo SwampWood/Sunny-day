@@ -264,11 +264,6 @@
             </property>
             <item>
              <property name="text">
-              <string>DAT</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
               <string>CSV</string>
              </property>
             </item>
