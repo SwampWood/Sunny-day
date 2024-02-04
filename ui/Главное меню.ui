@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Главный экран</string>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -1517,6 +1517,19 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="checkBox_2">
+            <property name="styleSheet">
+             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+            </property>
+            <property name="text">
+             <string>Ввести местоположение</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLineEdit" name="lineEdit">
             <property name="minimumSize">
              <size>
@@ -1532,6 +1545,43 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Preferred</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(218, 218, 243, 255), stop:0.995025 rgba(240, 252, 255, 249));</string>
+            </property>
+            <property name="text">
+             <string>Найти</string>
             </property>
            </widget>
           </item>
@@ -1629,7 +1679,11 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
            </spacer>
           </item>
           <item>
-           <widget class="QTableView" name="tableView_3"/>
+           <widget class="QTableView" name="tableView_3">
+            <property name="styleSheet">
+             <string notr="true">background-color: qlineargradient(spread:pad, x1:0.503, y1:0.977273, x2:0.522, y2:0.028, stop:0 rgba(200, 218, 243, 255), stop:0.995025 rgba(245, 252, 255, 249));</string>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer name="verticalSpacer_15">

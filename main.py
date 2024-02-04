@@ -1,12 +1,18 @@
 import sqlite3
 import sys
+import ctypes
 import analize
+
+import pandas as pd
+import datetime as dt
 
 from PyQt5 import uic, QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QStackedWidget, QMainWindow, QFileDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from time import sleep
 from format import *
+from current import get_current
 from prediction import LargeDataset, sort_, format_predictions
 
 
@@ -124,6 +130,21 @@ class FirstWindow(QMainWindow):
         self.Exit.clicked.connect(sys.exit)
 
 
+class Worker(QtCore.QObject):
+    finished = QtCore.pyqtSignal()
+    progress = QtCore.pyqtSignal(int)
+
+    def check_time(self):
+        while True:
+            if dt.datetime.now().minute == 30:
+                title = 'Уведомление'
+                message = 'Внимание! В течении часа ожидается ураган со скоростью ветра до 10 м/с. '\
+                          'Будьте осторожны и не покидайте помещения'
+                ctypes.windll.user32.MessageBoxW(0, message, title)
+            else:
+                sleep(60)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -136,8 +157,10 @@ class MainWindow(QMainWindow):
         self.Exit.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Exit_2.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Exit_3.clicked.connect(lambda: w.setCurrentIndex(0))
+        self.Exit_4.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Load.clicked.connect(self.open_file)
         self.checkBox.stateChanged.connect(self.show_url)
+        self.checkBox_2.stateChanged.connect(self.show_loc)
         self.lineEdit_2.setVisible(False)
 
         self.figure = Figure()
@@ -151,6 +174,7 @@ class MainWindow(QMainWindow):
         self.comboBox_4.currentTextChanged.connect(self.change_options2)
         self.comboBox_3.currentTextChanged.connect(self.plot)
         self.comboBox_8.currentTextChanged.connect(self.predict)
+        self.pushButton_2.clicked.connect(self.set_current)
         self.dateEdit.dateChanged.connect(self.plot)
         self.dateEdit_2.dateChanged.connect(self.plot)
         self.set_options()
@@ -291,6 +315,16 @@ class MainWindow(QMainWindow):
         model = PandasModel(df4)
         self.tableView_2.setModel(model)
 
+    # 4 экран
+    def set_current(self):
+        df = pd.DataFrame(get_current(self.lineEdit.text(), my=not self.checkBox_2.isChecked()))
+        model = PandasModel(df)
+        self.tableView_3.setModel(model)
+
+    def show_loc(self):
+        self.lineEdit.setVisible(self.checkBox.isChecked())
+        self.lineEdit.clear()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -308,6 +342,12 @@ if __name__ == '__main__':
     exe.Registration_Button.clicked.connect(lambda: w.setCurrentIndex(2))
     auth.Back_Button.clicked.connect(lambda: w.setCurrentIndex(0))
     registr.Back_Button.clicked.connect(lambda: w.setCurrentIndex(0))
+
+    worker = Worker()
+    thread = QtCore.QThread()
+    worker.moveToThread(thread)
+    thread.started.connect(worker.check_time)
+    thread.start()
 
     w.show()
     sys.exit(app.exec())
