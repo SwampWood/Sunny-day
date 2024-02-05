@@ -304,7 +304,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="Export">
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -423,7 +423,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_4">
+             <widget class="QRadioButton" name="radioButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -568,7 +568,7 @@ QCalendarWidget QWidget { alternate-background-color: rgb(81, 173, 224) }</strin
              </spacer>
             </item>
             <item>
-             <widget class="QRadioButton" name="radioButton_5">
+             <widget class="QRadioButton" name="radioButton_2">
               <property name="minimumSize">
                <size>
                 <width>140</width>

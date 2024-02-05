@@ -159,6 +159,7 @@ class MainWindow(QMainWindow):
         self.Exit_3.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Exit_4.clicked.connect(lambda: w.setCurrentIndex(0))
         self.Load.clicked.connect(self.open_file)
+        self.Export.clicked.connect(self.new_file)
         self.checkBox.stateChanged.connect(self.show_url)
         self.checkBox_2.stateChanged.connect(self.show_loc)
         self.lineEdit_2.setVisible(False)
@@ -252,6 +253,20 @@ class MainWindow(QMainWindow):
             else:
                 self.Error2.setVisible(True)
                 self.Error2.setText("Ошибка выполнения")
+
+    def new_file(self):
+        filename, type_ = QFileDialog.getOpenFileName(self, "Open File", ".",
+                                                      "Tables(*.csv);;Tables(*.xlsx);;All Files (*)")
+        if filename:
+            if self.comboBox.currentText() == 'CSV':
+                to_csv(self.comboBox_7.currentText(), filename)
+            elif self.comboBox.currentText() == 'XLSX':
+                to_xlsx(self.comboBox_7.currentText(), filename)
+            self.Error2.setStyleSheet("color: green")
+            self.Error2.setText("Экспорт успешно завершен")
+        else:
+            self.Error2.setVisible(True)
+            self.Error2.setText("Ошибка экспорта")
 
     def set_options(self):
         res = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
