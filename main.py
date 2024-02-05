@@ -256,8 +256,8 @@ class MainWindow(QMainWindow):
                 self.Error2.setText("Ошибка выполнения")
 
     def new_file(self):
-        filename, type_ = QFileDialog.getOpenFileName(self, "Open File", ".",
-                                                      "Tables(*.csv);;Tables(*.xlsx);;All Files (*)")
+        name = self.comboBox_0.currentText().lower() + '.' + self.comboBox.currentText().lower()
+        filename, type_ = QFileDialog.getOpenFileName(self, "Open File", "./" + name, "All Files (*)")
         if filename:
             if self.comboBox.currentText() == 'CSV':
                 to_csv(self.comboBox_0.currentText(), filename)
