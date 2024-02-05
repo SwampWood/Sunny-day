@@ -243,6 +243,7 @@ class MainWindow(QMainWindow):
                         pass
                 name = filename[filename.rfind('/') + 1:filename.rfind('.')]
                 to_sql(data, name=name, header=data.columns.values.tolist(), types=types)
+                self.comboBox_0.addItem(name)
                 self.comboBox_2.addItem(name)
                 self.comboBox_4.addItem(name)
                 self.comboBox_6.addItem(name)
@@ -259,9 +260,9 @@ class MainWindow(QMainWindow):
                                                       "Tables(*.csv);;Tables(*.xlsx);;All Files (*)")
         if filename:
             if self.comboBox.currentText() == 'CSV':
-                to_csv(self.comboBox_7.currentText(), filename)
+                to_csv(self.comboBox_0.currentText(), filename)
             elif self.comboBox.currentText() == 'XLSX':
-                to_xlsx(self.comboBox_7.currentText(), filename)
+                to_xlsx(self.comboBox_0.currentText(), filename)
             self.Error2.setStyleSheet("color: green")
             self.Error2.setText("Экспорт успешно завершен")
         else:
@@ -271,6 +272,7 @@ class MainWindow(QMainWindow):
     def set_options(self):
         res = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         for (i,) in res:
+            self.comboBox_0.addItem(i)
             self.comboBox_2.addItem(i)
             self.comboBox_4.addItem(i)
             self.comboBox_6.addItem(i)

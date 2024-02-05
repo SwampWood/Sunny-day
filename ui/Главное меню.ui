@@ -275,7 +275,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox_7">
+           <widget class="QComboBox" name="comboBox_0">
             <property name="minimumSize">
              <size>
               <width>0</width>
