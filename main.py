@@ -177,6 +177,8 @@ class MainWindow(QMainWindow):
         self.pushButton_2.clicked.connect(self.set_current)
         self.dateEdit.dateChanged.connect(self.plot)
         self.dateEdit_2.dateChanged.connect(self.plot)
+        self.radioButton.toggled.connect(self.plot)
+        self.radioButton_2.toggled.connect(self.plot)
         self.set_options()
         self.ShowGraph.clicked.connect(self.show_graph)
 
@@ -282,9 +284,12 @@ class MainWindow(QMainWindow):
 
         date1 = self.dateEdit.date().toString('yyyy-MM-dd')
         date2 = self.dateEdit_2.date().toString('yyyy-MM-dd')
-        ax.plot(self.df.loc[date1:date2].index.values,
-                self.df.loc[date1:date2][self.comboBox_3.currentText()].values)
-
+        if self.radioButton.isChecked():
+            ax.hist(self.df.loc[date1:date2][self.comboBox_3.currentText()].values,
+                    self.df.loc[date1:date2][self.comboBox_3.currentText()].nunique())
+        else:
+            ax.plot(self.df.loc[date1:date2].index.values,
+                    self.df.loc[date1:date2][self.comboBox_3.currentText()].values)
         self.canvas.draw()
 
     # 2 экран
