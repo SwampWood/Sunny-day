@@ -136,11 +136,12 @@ class Worker(QtCore.QObject):
 
     def check_time(self):
         while True:
-            if dt.datetime.now().minute == 30:
+            if dt.datetime.now().minute % 18 == 0:
                 title = 'Уведомление'
                 message = 'Внимание! В течении часа ожидается ураган со скоростью ветра до 10 м/с. '\
                           'Будьте осторожны и не покидайте помещения'
                 ctypes.windll.user32.MessageBoxW(0, message, title)
+                sleep(600)
             else:
                 sleep(60)
 
@@ -257,7 +258,7 @@ class MainWindow(QMainWindow):
 
     def new_file(self):
         name = self.comboBox_0.currentText().lower() + '.' + self.comboBox.currentText().lower()
-        filename, type_ = QFileDialog.getOpenFileName(self, "Open File", "./" + name, "All Files (*)")
+        filename, type_ = QFileDialog.getSaveFileName(self, "Open File", "./" + name, "All Files (*)")
         if filename:
             if self.comboBox.currentText() == 'CSV':
                 to_csv(self.comboBox_0.currentText(), filename)

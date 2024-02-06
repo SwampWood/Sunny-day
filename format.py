@@ -73,6 +73,28 @@ def column_sql(db_name, dir='database/temporary.db', target=None):
     return result
 
 
+# Функция для записи данных в CSV файл
+def to_csv(location_name, file_path):
+    if file_path[-1] == '/':
+        file_path += location_name + '.csv'
+    elif '.' not in file_path:
+        file_path += '.csv'
+    df = column_sql(location_name)
+    df.to_csv(file_path, index=False, encoding='UTF-8')
+    print(f"Данные успешно записаны в {file_path}.")
+
+
+# Функция для записи данных в Excel файл
+def to_xlsx(location_name, file_path):
+    if file_path[-1] == '/':
+        file_path += location_name + '.xlsx'
+    elif '.' not in file_path:
+        file_path += '.xlsx'
+    df = column_sql(location_name)
+    df.to_excel(file_path, index=False)
+    print(f"Данные успешно записаны в {file_path}.")
+
+
 def to_sql(db, name='meteorological_data', header=None, types=None):
     if header is None:
         header = list(headers.keys())
