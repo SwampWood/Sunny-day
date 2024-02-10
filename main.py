@@ -79,7 +79,7 @@ class Registration(QMainWindow):
                     self.label_Errors.setVisible(True)
                     self.label_Errors.setText('Такой логин уже есть')
                 else:
-                    params = (email, login, password)
+                    params = (email, login, '123' + password[::-1])
                     cur.execute("INSERT INTO entrance VALUES(?, ?, ?)", params)
                     w.setCurrentIndex(3)
 
@@ -114,7 +114,7 @@ class Authorization(QMainWindow):
                     cur.execute(f"SELECT * FROM entrance WHERE login == '{login}'")
                     result = list(cur.fetchone())
                     print(result)
-                if result[2] != password:  # Тут сравнение с паролем при вводе и том, что в базе данных
+                if result[2][3:][::-1] != password:  # Тут сравнение с паролем при вводе и том, что в базе данных
                     self.label_Errors.setVisible(True)
                     self.label_Errors.setText('Пароль неверный')
                 else:
